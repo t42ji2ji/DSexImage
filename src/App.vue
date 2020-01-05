@@ -5,8 +5,19 @@
       <router-link to="/about">About</router-link>
     </div> -->
     <router-view />
+    <div class="version">{{ version }}</div>
   </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      version: 'v. 0.0.2'
+    };
+  }
+};
+</script>
 
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans+TC&display=swap');
@@ -24,14 +35,19 @@
 
 #nav {
   padding: 30px;
-
   a {
     font-weight: bold;
     color: #2c3e50;
-
     &.router-link-exact-active {
       color: #42b983;
     }
   }
+}
+
+.version {
+  position: absolute;
+  bottom: 0;
+  right: 12px;
+  color: rgb(81, 91, 167);
 }
 </style>

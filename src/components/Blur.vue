@@ -1,13 +1,16 @@
 <template lang="pug">
   #blur
+    .mode(v-if="thumbnail")
+      .tip(:class="{unUploadIcon:!isblurMode}" @click="changeBlurMode(true)") 模糊背景
+      .tip(:class="{unUploadIcon:isblurMode}" @click="changeBlurMode(false)") 刮刮樂
     .tips
-      .tip() 
-        font-awesome-icon(icon="hand-point-up" color="white")
-        span(style="margin-left: 10px") 觸碰可以模糊圖片
-      .tip.clean(@click="cleanCtx")
+      //- .tip() 
+      //-   font-awesome-icon(icon="hand-point-up" color="white")
+      //-   span(style="margin-left: 10px") 觸碰可以模糊圖片
+      .tip.clean(@click="cleanCtx", v-if="thumbnail")
         font-awesome-icon(icon="times" color="white")
-        span(style="margin-left: 10px") 清除模糊
-    canvas#mycanvas(ref="myCanvas",:width="canvasWidth" :height="canvasHeight", @mousedown="handleMouseDown", @mousemove="handleMouseMove(false, $event)", @mouseup="handleMouseUp", @mouseout="handleMouseOut", @touchstart="handleMouseDown", @touchend="handleMouseUp", @touchmove="handleMouseMove(true, $event)")
+        span(style="margin-left: 10px") 還原圖片
+    canvas#mycanvas(ref="myCanvas",:width="canvasWidth" :height="canvasHeight", @mousedown="handleMouseDown", @mousemove="handleMouseMove(false, $event)", @mouseup="handleMouseUp", @mouseout="handleMouseOut", @touchstart="handleMouseDown", @touchend="handleMouseUp", @touchmove="handleMouseMove(true, $event)",)
     canvas#tempCanvas(ref="tempCanvas",:width="canvasWidth" :height="canvasHeight")
     canvas#tempCanvas2(ref="tempCanvasOrign",:width="canvasWidth" :height="canvasHeight")
 
@@ -22,17 +25,13 @@ export default {
   },
   mounted() {
     this.init();
-    console.log(document.getElementById('blur').offsetWidth);
     this.canvasWidth = document.getElementById('blur').offsetWidth;
-    var vm = this;
-    window.document.addEventListener('mouseup', function(e) {
-      vm.handleMouseUp(e);
-    });
+    this.registListener();
   },
   data() {
     return {
       canvasWidth: 320,
-      canvasHeight: 450,
+      canvasHeight: 320,
       isDown: false,
       tempCtx: null,
       ctx: null,
@@ -42,7 +41,9 @@ export default {
       canvas: null,
       PI2: Math.PI * 2,
       img: null,
-      adjust: []
+      adjust: [],
+      resizeTime: null,
+      isblurMode: true
     };
   },
   computed: {
@@ -63,6 +64,25 @@ export default {
     }
   },
   methods: {
+    changeBlurMode(mode) {
+      if (this.isblurMode == mode) {
+        console.log('same');
+        return;
+      } else {
+        this.cleanCtx();
+        this.isblurMode = !this.isblurMode;
+      }
+    },
+    registListener() {
+      var vm = this;
+      window.document.addEventListener('mouseup', function(e) {
+        vm.handleMouseUp(e);
+      });
+      // window.addEventListener('resize', function() {
+      //   console.log('resize');
+      //   vm.canvasWidth = document.getElementById('blur').offsetWidth;
+      // });
+    },
     returnCanvas() {
       var canvas = document.getElementById('mycanvas');
       return canvas.toDataURL();
@@ -145,15 +165,18 @@ export default {
       this.drawAdjustImage(this.tempCtx, this.img);
       this.tempCtx.restore();
       var vm = this;
-      FastBlur.boxBlurCanvasRGBA(
-        'tempCanvas',
-        0,
-        0,
-        vm.tempCanvas.width,
-        vm.tempCanvas.height,
-        4,
-        0
-      );
+      if (this.isblurMode) {
+        FastBlur.boxBlurCanvasRGBA(
+          'tempCanvas',
+          0,
+          0,
+          vm.tempCanvas.width,
+          vm.tempCanvas.height,
+          4,
+          0
+        );
+      }
+
       this.ctx.save();
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.drawImage(
@@ -165,7 +188,9 @@ export default {
       );
       this.ctx.globalCompositeOperation = 'destination-over';
       // this.ctx.drawImage(this.img, 0, 0);
-      this.drawAdjustImage(this.ctx, this.img);
+      if (this.isblurMode) {
+        this.drawAdjustImage(this.ctx, this.img);
+      }
       this.ctx.restore();
     },
     handleMouseOut(e) {
@@ -238,6 +263,7 @@ export default {
 canvas {
   border: 2px dashed rgb(139, 119, 187);
   box-sizing: border-box;
+  padding-left: 1px;
 }
 #tempCanvas {
   border: 10px solid blue;
@@ -248,6 +274,22 @@ canvas {
 #tempCanvas2 {
   position: absolute;
   top: -1000px;
+}
+
+.mode {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+  border-radius: 15px;
+  overflow: hidden;
+  .tip {
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 3px;
+    text-align: left;
+    background-color: rgb(107, 62, 255);
+    padding: 2px 10px;
+  }
 }
 
 .tips {
