@@ -160,6 +160,9 @@ export default {
 #Home {
   width: 100%;
   height: 100%;
+  padding: 40px 10px;
+  box-sizing: border-box;
+  background-color: #302e3f;
 }
 .Wrapper {
   display: flex;
@@ -168,9 +171,8 @@ export default {
   justify-content: space-around;
   align-items: center;
   flex-direction: column;
-  background-color: #302e3f;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   position: relative;
 
   .btngroup {

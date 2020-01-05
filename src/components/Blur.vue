@@ -259,6 +259,8 @@ export default {
   position: relative;
   width: 100%;
   max-width: 800px;
+  display: flex;
+  justify-content: center;
 }
 canvas {
   border: 2px dashed rgb(139, 119, 187);
