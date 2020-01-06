@@ -4,7 +4,7 @@
       .tip(:class="{unUploadIcon:!isblurMode}" @click="changeBlurMode(true)") 模糊背景
       .tip(:class="{unUploadIcon:isblurMode}" @click="changeBlurMode(false)") 刮刮樂
     .tips
-      //- .tip() 
+      //- .tip()
       //-   font-awesome-icon(icon="hand-point-up" color="white")
       //-   span(style="margin-left: 10px") 觸碰可以模糊圖片
       .tip.clean(@click="cleanCtx", v-if="thumbnail")
@@ -52,7 +52,8 @@ export default {
       isblurMode: true,
       degrees: 0,
       isRotateable: true,
-      message: ""
+      message: "",
+      cropConfig: {}
     };
   },
   computed: {
@@ -138,9 +139,24 @@ export default {
       //   vm.canvasWidth = document.getElementById('blur').offsetWidth;
       // });
     },
+    cropCanvas(canvas, config){
+      var ctx = canvas.getContext("2d");
+      const data = ctx.getImageData(
+        config.offset.x,
+        config.offset.y,
+        config.width,
+        config.height
+      );
+      var canvas2 = document.createElement("canvas");
+      canvas2.width = config.width;
+      canvas2.height = config.height;
+      var ctx2 = canvas2.getContext("2d");
+      ctx2.putImageData(data, 0, 0);
+      return canvas2;
+    },
     returnCanvas() {
       var canvas = document.getElementById("mycanvas");
-      return canvas.toDataURL();
+      return this.cropCanvas(canvas, this.cropConfig).toDataURL();
     },
     init() {
       this.tempCanvas = this.$refs.tempCanvas;
@@ -162,8 +178,15 @@ export default {
       var x = this.canvas.width / 2 - (this.img.width / 2) * scale;
       var y = this.canvas.height / 2 - (this.img.height / 2) * scale;
       this.adjust.push(x, y, scale);
-
-      // this.ctx.drawImage(this.img, 0, 0);
+      this.cropConfig = {
+        width: this.img.width * scale,
+        height: this.img.height * scale,
+        offset: {
+          x: x,
+          y: y
+        }
+      };
+// this.ctx.drawImage(this.img, 0, 0);
       this.drawAdjustImage(this.ctx, this.img);
     },
     drawAdjustImage(drawTarget, drawnTarget, rotate = false) {
