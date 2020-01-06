@@ -13,7 +13,7 @@
 export default {
   data() {
     return {
-      version: 'v. 0.0.2'
+      version: 'v. 0.0.4'
     };
   }
 };

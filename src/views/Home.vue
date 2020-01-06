@@ -1,10 +1,12 @@
 <template lang="pug">
   #Home
+    transition(name="fade")
+      .bgCover(v-if="isDialogOpen")
     .Wrapper
-      Dialog(:message="dialogMessage",:password="password", :webUrl="webUrl",:imageData="$refs.myCanvas.returnCanvas()",v-if="isDialogOpen" @closeDialog="openDialog")
-      .coverImage
+      transition(name="fade")
+        Dialog(:message="dialogMessage",:password="password", :webUrl="webUrl",:imageData="$refs.myCanvas.returnCanvas()",v-if="isDialogOpen" @closeDialog="openDialog")
         //- img(:src="thumbnail")
-        Blur(:thumbnail="thumbnail", ref="myCanvas")
+      Blur(:thumbnail="thumbnail", ref="myCanvas")
       //- .title 美好 從分享開始
 
       .uploadOptions
@@ -25,13 +27,13 @@
 </template>
 
 <script>
-import FileUpload from 'vue-upload-component';
-import axios from 'axios';
-import Blur from '../components/Blur';
-import Dialog from '../components/Dialog';
+import FileUpload from "vue-upload-component";
+import axios from "axios";
+import Blur from "../components/Blur";
+import Dialog from "../components/Dialog";
 
 export default {
-  name: 'app',
+  name: "app",
   components: {
     FileUpload,
     Blur,
@@ -41,12 +43,12 @@ export default {
     return {
       file: [],
       canUpload: false,
-      thumbnail: '',
-      password: '',
+      thumbnail: "",
+      password: "",
       duration: Number,
-      dialogMessage: '',
+      dialogMessage: "",
       isDialogOpen: false,
-      webUrl: ''
+      webUrl: ""
     };
   },
   mounted() {},
@@ -57,7 +59,7 @@ export default {
     },
     validateForm() {
       if (this.duration < 0) {
-        return '時間不可以 < 0 啦';
+        return "時間不可以 < 0 啦";
       }
     },
     upload() {
@@ -69,7 +71,7 @@ export default {
       // }
       this.canUpload = false;
       var vm = this;
-      var baseUrl = 'https://imagewall.ahkui.com/api/v1/photo';
+      var baseUrl = "https://imagewall.ahkui.com/api/v1/photo";
       axios
         .post(baseUrl, {
           duration: this.duration,
@@ -80,7 +82,7 @@ export default {
           console.log(response);
           vm.canUpload = true;
           vm.isDialogOpen = true;
-          vm.webUrl = baseUrl + '/' + response.data.photo._id;
+          vm.webUrl = baseUrl + "/" + response.data.photo._id;
         })
         .catch(function(error) {
           vm.canUpload = true;
@@ -119,7 +121,7 @@ export default {
     },
     drawCanvas(strDataURI) {
       var myCanvas = this.$refs.myCanvas;
-      var ctx = myCanvas.getContext('2d');
+      var ctx = myCanvas.getContext("2d");
       var img = new Image();
       img.onload = function() {
         var hRatio = myCanvas.width / img.width;
@@ -160,13 +162,12 @@ export default {
 #Home {
   width: 100%;
   height: 100%;
-  padding: 40px 10px;
   box-sizing: border-box;
   background-color: #302e3f;
 }
 .Wrapper {
   display: flex;
-  padding: 20px 10px;
+  padding: 30px 15px 10px 15px;
   box-sizing: border-box;
   justify-content: space-around;
   align-items: center;
@@ -231,42 +232,64 @@ export default {
   display: flex;
   color: rgb(154, 123, 255);
   flex-direction: column;
-  margin-bottom: 20px;
   max-width: 500px;
 
   .timeOptions {
     display: flex;
     margin-bottom: 12px;
     width: 100%;
+    font-size: 1rem;
+
     .timeOptionTitle {
       font-weight: bold;
-      flex: 1;
+      flex: 2;
       color: white;
       height: 40px;
       line-height: 40px;
-      padding: 2px 4px;
       border-radius: 10px 0px 0px 10px;
-      box-shadow: 0px 3px 0px rgb(199, 59, 152);
-      background-color: rgb(251, 73, 192);
+      background-color: rgb(255, 81, 110);
     }
     .inputForm {
       flex: 3;
-      padding-left: 12px;
+      padding-left: 8px;
+      padding-right: 8px;
       background: rgb(35, 35, 44);
-      box-shadow: 0px 3px 0px rgb(29, 29, 41);
+      border-radius: 0px 10px 10px 0px;
 
       input {
+        border-radius: 0px 10px 10px 0px;
         box-sizing: border-box;
         width: 100%;
         height: 100%;
         color: white;
         font-weight: bold;
-        font-size: 1.2rem;
+        font-size: 0.8rem;
         outline: none;
         border: none;
         background: rgb(35, 35, 44);
       }
     }
   }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  transform: translateY(50px);
+  opacity: 0;
+}
+
+.bgCover {
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  box-sizing: border-box;
+  background-color: rgba(26, 26, 37, 0.918);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 }
 </style>

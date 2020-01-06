@@ -7,7 +7,9 @@ import {
   faUserSecret,
   faArrowUp,
   faHandPointUp,
-  faTimes
+  faTimes,
+  faUndo,
+  faGrinHearts
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -17,7 +19,7 @@ import {
 import router from './router'
 import store from './store'
 
-library.add(faUserSecret, faArrowUp, faHandPointUp, faTimes);
+library.add(faUserSecret, faArrowUp, faHandPointUp, faTimes, faUndo, faGrinHearts);
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 

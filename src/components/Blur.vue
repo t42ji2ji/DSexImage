@@ -9,29 +9,35 @@
       //-   span(style="margin-left: 10px") 觸碰可以模糊圖片
       .tip.clean(@click="cleanCtx", v-if="thumbnail")
         font-awesome-icon(icon="times" color="white")
-        span(style="margin-left: 10px") 還原圖片
-    canvas#mycanvas(ref="myCanvas",:width="canvasWidth" :height="canvasHeight", @mousedown="handleMouseDown", @mousemove="handleMouseMove(false, $event)", @mouseup="handleMouseUp", @mouseout="handleMouseOut", @touchstart="handleMouseDown", @touchend="handleMouseUp", @touchmove="handleMouseMove(true, $event)",)
-    canvas#tempCanvas(ref="tempCanvas",:width="canvasWidth" :height="canvasHeight")
-    canvas#tempCanvas2(ref="tempCanvasOrign",:width="canvasWidth" :height="canvasHeight")
+        span(style="margin-left: 10px") 清除效果
+      .tip.rotate(@click="rotateCtx(90)", v-if="thumbnail")
+        font-awesome-icon(icon="undo" color="white")
+        span(style="margin-left: 10px") 旋轉
+    .canvass()
+      canvas#mycanvas(ref="myCanvas",:width="canvasWidth" :height="canvasHeight", @mousedown="handleMouseDown", @mousemove="handleMouseMove(false, $event)", @mouseup="handleMouseUp", @mouseout="handleMouseOut", @touchstart="handleMouseDown", @touchend="handleMouseUp", @touchmove="handleMouseMove(true, $event)",)
+      canvas#tempCanvas(ref="tempCanvas",:width="canvasWidth" :height="canvasHeight")
+      canvas#tempCanvas2(ref="tempCanvasOrign",:width="canvasWidth" :height="canvasHeight")
+      .cover(v-if="!isRotateable", :style="{width: `${canvasWidth}px`,height:`${canvasHeight}px`}") {{message}}
+
 
 </template>
 
 <script>
-import FastBlur from '../assetsJs/Superfast';
+import FastBlur from "../assetsJs/Superfast";
 export default {
-  name: 'Blur',
+  name: "Blur",
   props: {
     thumbnail: String
   },
   mounted() {
     this.init();
-    this.canvasWidth = document.getElementById('blur').offsetWidth;
+    this.canvasWidth = document.getElementById("blur").offsetWidth;
     this.registListener();
   },
   data() {
     return {
       canvasWidth: 320,
-      canvasHeight: 320,
+      canvasHeight: 350,
       isDown: false,
       tempCtx: null,
       ctx: null,
@@ -43,7 +49,10 @@ export default {
       img: null,
       adjust: [],
       resizeTime: null,
-      isblurMode: true
+      isblurMode: true,
+      degrees: 0,
+      isRotateable: true,
+      message: ""
     };
   },
   computed: {
@@ -64,9 +73,55 @@ export default {
     }
   },
   methods: {
+    rotateCtx(degrees) {
+      if (!this.isRotateable) {
+        return;
+      }
+      this.tempCanvasOrignCtx.clearRect(
+        0,
+        0,
+        this.tempCanvasOrign.width,
+        this.tempCanvasOrign.height
+      );
+      this.degrees = this.degrees + degrees;
+      this.isRotateable = false;
+      this.message = "旋轉中";
+      // this.degrees = this.degrees + degrees;
+      // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      // this.ctx.save();
+      // this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+      // this.ctx.rotate((this.degrees * Math.PI) / 180);
+      // // this.ctx.drawImage(this.img, -this.img.width / 2, -this.img.width / 2);
+      // if (
+      //   (this.img.width > this.img.height && this.degrees % 360 == 90) ||
+      //   (this.img.width > this.img.height && this.degrees % 360 == 270)
+      // ) {
+      //   var scale = Math.min(
+      //     this.canvas.width / this.img.height,
+      //     this.canvas.height / this.img.width
+      //   );
+      // } else {
+      //   scale = Math.min(
+      //     this.canvas.width / this.img.width,
+      //     this.canvas.height / this.img.height
+      //   );
+      // }
+
+      // this.ctx.drawImage(
+      //   this.img,
+      //   (-this.img.width * scale) / 2,
+      //   (-this.img.height * scale) / 2,
+      //   this.img.width * scale,
+      //   this.img.height * scale
+      // );
+      // this.ctx.restore();
+      this.message = "";
+      this.isRotateable = true;
+      this.handleMouseUp();
+    },
     changeBlurMode(mode) {
       if (this.isblurMode == mode) {
-        console.log('same');
+        console.log("same");
         return;
       } else {
         this.cleanCtx();
@@ -75,7 +130,7 @@ export default {
     },
     registListener() {
       var vm = this;
-      window.document.addEventListener('mouseup', function(e) {
+      window.document.addEventListener("mouseup", function(e) {
         vm.handleMouseUp(e);
       });
       // window.addEventListener('resize', function() {
@@ -84,25 +139,22 @@ export default {
       // });
     },
     returnCanvas() {
-      var canvas = document.getElementById('mycanvas');
+      var canvas = document.getElementById("mycanvas");
       return canvas.toDataURL();
     },
     init() {
       this.tempCanvas = this.$refs.tempCanvas;
-      this.tempCtx = this.tempCanvas.getContext('2d');
+      this.tempCtx = this.tempCanvas.getContext("2d");
       this.tempCanvasOrign = this.$refs.tempCanvasOrign;
-      this.tempCanvasOrignCtx = this.tempCanvasOrign.getContext('2d');
+      this.tempCanvasOrignCtx = this.tempCanvasOrign.getContext("2d");
       this.canvas = this.$refs.myCanvas;
-      this.ctx = this.canvas.getContext('2d');
+      this.ctx = this.canvas.getContext("2d");
       this.img = new Image();
-      this.img.crossOrigin = 'anonymous';
+      this.img.crossOrigin = "anonymous";
       this.img.onload = this.start;
       this.img.src = this.thumbnail;
     },
     start() {
-      console.log(this.canvas.width);
-      console.log(this.img.width);
-
       var scale = Math.min(
         this.canvas.width / this.img.width,
         this.canvas.height / this.img.height
@@ -114,8 +166,8 @@ export default {
       // this.ctx.drawImage(this.img, 0, 0);
       this.drawAdjustImage(this.ctx, this.img);
     },
-    drawAdjustImage(drawTarget, drawnTarget, mode = true) {
-      if (mode) {
+    drawAdjustImage(drawTarget, drawnTarget, rotate = false) {
+      if (!rotate) {
         drawTarget.drawImage(
           drawnTarget,
           this.adjust[0],
@@ -124,12 +176,29 @@ export default {
           this.img.height * this.adjust[2]
         );
       } else {
+        drawTarget.translate(this.canvas.width / 2, this.canvas.height / 2);
+        drawTarget.rotate((this.degrees * Math.PI) / 180);
+        if (
+          (this.img.width > this.img.height && this.degrees % 360 == 90) ||
+          (this.img.width > this.img.height && this.degrees % 360 == 270)
+        ) {
+          var scale = Math.min(
+            this.canvas.width / this.img.height,
+            this.canvas.height / this.img.width
+          );
+        } else {
+          scale = Math.min(
+            this.canvas.width / this.img.width,
+            this.canvas.height / this.img.height
+          );
+        }
+        this.adjust[2] = scale;
         drawTarget.drawImage(
           drawnTarget,
-          0,
-          0,
-          this.img.width * this.adjust[2],
-          this.img.height * this.adjust[2]
+          (-this.img.width * scale) / 2,
+          (-this.img.height * scale) / 2,
+          this.img.width * scale,
+          this.img.height * scale
         );
       }
     },
@@ -144,14 +213,17 @@ export default {
     handleMouseDown(e) {
       e.preventDefault();
       e.stopPropagation();
-
       this.isDown = true;
     },
     handleMouseUp(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
       this.isDown = false;
       this._clearTempCtx();
+      // this.drawAdjustImage(this.tempCtx, this.tempCanvasOrign, true);
       this.tempCtx.drawImage(
         this.tempCanvasOrign,
         0,
@@ -161,19 +233,19 @@ export default {
       );
       this.tempCtx.save();
       // eslint-disable-next-line no-unused-vars
-      this.tempCtx.globalCompositeOperation = 'source-in';
-      this.drawAdjustImage(this.tempCtx, this.img);
+      this.tempCtx.globalCompositeOperation = "source-in";
+      this.drawAdjustImage(this.tempCtx, this.img, true);
       this.tempCtx.restore();
       var vm = this;
       if (this.isblurMode) {
         FastBlur.boxBlurCanvasRGBA(
-          'tempCanvas',
+          "tempCanvas",
           0,
           0,
           vm.tempCanvas.width,
           vm.tempCanvas.height,
-          4,
-          0
+          10,
+          1
         );
       }
 
@@ -186,10 +258,10 @@ export default {
         this.canvas.width,
         this.canvas.height
       );
-      this.ctx.globalCompositeOperation = 'destination-over';
+      this.ctx.globalCompositeOperation = "destination-over";
       // this.ctx.drawImage(this.img, 0, 0);
       if (this.isblurMode) {
-        this.drawAdjustImage(this.ctx, this.img);
+        this.drawAdjustImage(this.ctx, this.img, true);
       }
       this.ctx.restore();
     },
@@ -199,7 +271,7 @@ export default {
       this.isDown = false;
     },
     handleMouseMove(isTouch, e) {
-      if (!this.isDown || this.thumbnail == '') {
+      if (!this.isDown || this.thumbnail == "") {
         return;
       }
       if (isTouch) {
@@ -213,6 +285,8 @@ export default {
       e.stopPropagation();
       var mouseX = parseInt(clientX - this.offsetX);
       var mouseY = parseInt(clientY - this.offsetY);
+      this.ctx.fillStyle = "rgba(107, 62, 255, 0.3)"; //red
+
       this.ctx.beginPath();
       this.ctx.arc(mouseX, mouseY, 20, 0, this.PI2);
       this.ctx.closePath();
@@ -228,6 +302,7 @@ export default {
     },
     cleanCtx() {
       this.adjust = [];
+      this.degrees = 0;
       this.tempCtx.clearRect(
         0,
         0,
@@ -258,9 +333,10 @@ export default {
 #blur {
   position: relative;
   width: 100%;
-  max-width: 800px;
+  max-width: 500px;
   display: flex;
   justify-content: center;
+  flex-direction: column;
 }
 canvas {
   border: 2px dashed rgb(139, 119, 187);
@@ -270,12 +346,12 @@ canvas {
 #tempCanvas {
   border: 10px solid blue;
   position: absolute;
-  top: -1000px;
+  bottom: -1000px;
 }
 
 #tempCanvas2 {
   position: absolute;
-  top: -1000px;
+  bottom: -1000px;
 }
 
 .mode {
@@ -296,6 +372,9 @@ canvas {
 
 .tips {
   display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+
   .tip {
     margin-right: 5px;
     border-radius: 5px;
@@ -307,7 +386,22 @@ canvas {
     padding: 2px 10px;
   }
   .clean {
-    background-color: rgb(235, 57, 57);
+    background-color: rgb(251, 72, 72);
   }
+  .rotate {
+    background-color: rgb(59, 202, 166);
+  }
+}
+
+.cover {
+  background-color: rgba(46, 47, 59, 0.856);
+  z-index: 999;
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 6px;
+  margin-left: 2.5px;
+  color: white;
+  font-weight: bold;
+  line-height: 250px;
 }
 </style>
