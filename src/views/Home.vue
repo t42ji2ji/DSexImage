@@ -16,14 +16,14 @@
           font-awesome-icon(icon="arrow-up" :class="{ unUploadIcon: !canUpload }")
       .uploadOptions
         .timeOptions
-          .timeOptionTitle 圖片時效
+          .timeOptionTitle(@click="test") 圖片時效
           .inputForm
-            input(type="number", placeholder="分鐘 空白表示一天",v-model="duration")
+            input.in(type="number", placeholder="分鐘 空白表示一天",v-model="duration" value="duration")
         .timeOptions
           .timeOptionTitle() 
             span 密碼
           .inputForm
-            input(placeholder="空白表示不設置密碼", v-model="password")
+            input.in(placeholder="空白表示不設置密碼", v-model="password")
 </template>
 
 <script>
@@ -50,10 +50,24 @@ export default {
       duration: Number,
       dialogMessage: "",
       isDialogOpen: false,
-      webUrl: ""
+      webUrl: "",
+      keyCode: "a"
     };
   },
-  mounted() {},
+  mounted() {
+    console.log("s");
+    var vm = this;
+    window.document.addEventListener("keyup", e => {
+      vm.keyCode = e.keyCode || e.which;
+      const viewport = document.querySelector('meta[name="viewport"]');
+      if (viewport) {
+        console.log(viewport);
+        viewport.content = "initial-scale=1";
+        viewport.content = "width=device-width";
+      }
+      console.log(vm.keyCode);
+    });
+  },
   computed: {},
   beforeRouteLeave(to, from, next) {
     var returnFunc;
@@ -65,10 +79,12 @@ export default {
       this.isDialogOpen = !this.isDialogOpen;
     },
     test() {
-      this.$refs.LittleAlert.showLittleAlert(
-        "時間請 > 0",
-        this.$refs.myCanvas.getScroll()[1]
-      );
+      const viewport = document.querySelector('meta[name="viewport"]');
+      if (viewport) {
+        console.log(viewport);
+        viewport.content = "initial-scale=1";
+        viewport.content = "width=device-width";
+      }
     },
     validateForm() {
       if (this.duration < 0) {
@@ -300,7 +316,7 @@ export default {
         height: 100%;
         color: white;
         font-weight: bold;
-        font-size: 0.8rem;
+        font-size: 1rem;
         outline: none;
         border: none;
         background: rgb(35, 35, 44);

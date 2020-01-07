@@ -9,5 +9,4 @@ git init
 git add -A
 git commit -m 'deploy'
 git push -f https://github.com/t42ji2ji/DSexImage.git master:gh-pages
-
 cd -

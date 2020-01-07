@@ -6,7 +6,7 @@
     </div>-->
     <div class="logo" v-on:click="toHome">
       <img src="./assets/icon.png" />
-      <h3>DSEX</h3>
+      <h3>DSEXIG</h3>
     </div>
     <router-view />
     <div class="version">{{ version }}</div>
@@ -20,6 +20,7 @@ export default {
       version: "v. 0.0.4"
     };
   },
+  mounted() {},
   methods: {
     toHome() {
       if (this.$route.name != "land") this.$router.push("/");

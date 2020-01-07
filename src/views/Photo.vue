@@ -62,7 +62,6 @@ export default {
         })
         .catch(function(error) {
           vm.postControl = true;
-
           vm.$refs.LittleAlert.showLittleAlert("伺服器維護中");
           console.log(error);
         });

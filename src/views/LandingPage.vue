@@ -1,7 +1,7 @@
 <template lang="pug">
 #LandingPage
   .Logo
-  .title DSEX
+  .title DSEXIG
   .subTitle 更快開始分享
   
   router-link(to="/edit").btn 開始使用
@@ -56,7 +56,7 @@ export default {};
 }
 
 .btn {
-  margin-top: 80px;
+  margin-top: 60px;
   text-decoration: none;
 }
 </style>

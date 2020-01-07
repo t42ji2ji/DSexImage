@@ -38,7 +38,7 @@ export default {
   data() {
     return {
       canvasWidth: 320,
-      canvasHeight: 450,
+      canvasHeight: 380,
       isDown: false,
       tempCtx: null,
       ctx: null,
