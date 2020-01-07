@@ -2,7 +2,7 @@
   #Photo
     LittleAlert(ref="LittleAlert")
     .photoWrapper()
-      .photo(:style="{backgroundImage: `url('${baseUrl}${$route.params.id}')`}" @="postImage")
+      .photo(:style="{backgroundImage: `url('${passUrl}')`}" @="postImage")
       .pasword
         .uploadOptions
           .timeOptions
@@ -23,30 +23,52 @@ export default {
   data() {
     return {
       baseUrl: "https://imagewall.ahkui.com/api/v1/photo/",
-      password: ""
+      password: "",
+      pass: false,
+      imageData: "",
+      postControl: true
     };
+  },
+  computed: {
+    passUrl() {
+      if (this.pass) {
+        return this.imageData;
+      } else {
+        console.log(this.baseUrl + this.$route.params.id);
+        return this.baseUrl + this.$route.params.id;
+      }
+    }
   },
   methods: {
     test() {
       console.log("hi");
     },
     postImage() {
-      console.log("object");
+      if (!this.postControl) {
+        return;
+      }
       var baseUrl = this.baseUrl + this.$route.params.id;
       var vm = this;
+      this.postControl = false;
       axios
         .post(baseUrl, {
           password: vm.password
         })
         .then(function(response) {
-          if (response.data.data) {
-            console.log("object");
+          console.log(response.data);
+          vm.postControl = true;
+
+          if (!response.data.status) {
             vm.$refs.LittleAlert.showLittleAlert("密碼錯誤");
           }
+          vm.pass = response.data.status;
+          console.log(vm.pass);
+          vm.imageData = response.data.data;
         })
         .catch(function(error) {
-          vm.$refs.LittleAlert.showLittleAlert("密碼錯誤");
+          vm.postControl = true;
 
+          vm.$refs.LittleAlert.showLittleAlert("伺服器維護中");
           console.log(error);
         });
     }
