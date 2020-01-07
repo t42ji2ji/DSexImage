@@ -1,29 +1,29 @@
 <template lang="pug">
   #Home
+    LittleAlert(ref="LittleAlert")
     transition(name="fade")
       .bgCover(v-if="isDialogOpen")
     .Wrapper
-      transition(name="fade")
+      transition(name="openDialog")
         Dialog(:message="dialogMessage",:password="password", :webUrl="webUrl",:imageData="$refs.myCanvas.returnCanvas()",v-if="isDialogOpen" @closeDialog="openDialog")
         //- img(:src="thumbnail")
       Blur(:thumbnail="thumbnail", ref="myCanvas")
       //- .title 美好 從分享開始
-
+      .btngroup
+        file-upload.btn(@input-filter="inputFilter",
+            @input-file="inputFile", v-model="file",accept="image/png,image/gif,image/jpeg,image/webp", ref="upload",  multiple=false, :data="{duration: 'access_token'}",) 選擇檔案
+        .btn(@click="upload", :class="{ unUploadIcon: !canUpload }" ) 上傳 
+          font-awesome-icon(icon="arrow-up" :class="{ unUploadIcon: !canUpload }")
       .uploadOptions
         .timeOptions
           .timeOptionTitle 圖片時效
           .inputForm
             input(type="number", placeholder="分鐘 空白表示一天",v-model="duration")
         .timeOptions
-          .timeOptionTitle 
+          .timeOptionTitle() 
             span 密碼
           .inputForm
             input(placeholder="空白表示不設置密碼", v-model="password")
-      .btngroup
-        file-upload.btn(@input-filter="inputFilter",
-            @input-file="inputFile", v-model="file",accept="image/png,image/gif,image/jpeg,image/webp", ref="upload",  multiple=false, :data="{duration: 'access_token'}",) 選擇檔案
-        .btn(@click="upload", :class="{ unUploadIcon: !canUpload }" ) 上傳 
-          font-awesome-icon(icon="arrow-up" :class="{ unUploadIcon: !canUpload }")
 </template>
 
 <script>
@@ -31,13 +31,15 @@ import FileUpload from "vue-upload-component";
 import axios from "axios";
 import Blur from "../components/Blur";
 import Dialog from "../components/Dialog";
+import LittleAlert from "../components/LittleAlert";
 
 export default {
   name: "app",
   components: {
     FileUpload,
     Blur,
-    Dialog
+    Dialog,
+    LittleAlert
   },
   data() {
     return {
@@ -53,22 +55,47 @@ export default {
   },
   mounted() {},
   computed: {},
+  beforeRouteLeave(to, from, next) {
+    console.log(to, from, next);
+    var returnFunc;
+    window.document.removeEventListener("mouseup", returnFunc);
+    next();
+  },
   methods: {
     openDialog() {
       this.isDialogOpen = !this.isDialogOpen;
     },
+    test() {
+      this.$refs.LittleAlert.showLittleAlert(
+        "時間請 > 0",
+        this.$refs.myCanvas.getScroll()[1]
+      );
+    },
     validateForm() {
       if (this.duration < 0) {
-        return "時間不可以 < 0 啦";
+        this.$refs.LittleAlert.showLittleAlert(
+          "時間請 > 0",
+          this.$refs.myCanvas.getScroll()[1]
+        );
+        return false;
+      } else if (this.duration > 10000) {
+        this.$refs.LittleAlert.showLittleAlert(
+          "數字不要 > 一萬",
+          this.$refs.myCanvas.getScroll()[1]
+        );
+        return false;
       }
+      return true;
     },
     upload() {
       if (!this.canUpload) {
         return;
       }
-      // if (this.validateForm) {
-      //   return;
-      // }
+      if (!this.validateForm()) {
+        console.log(this.validateForm());
+        return;
+      }
+      console.log("upup");
       this.canUpload = false;
       var vm = this;
       var baseUrl = "https://imagewall.ahkui.com/api/v1/photo";
@@ -82,10 +109,14 @@ export default {
           console.log(response);
           vm.canUpload = true;
           vm.isDialogOpen = true;
-          vm.webUrl = baseUrl + "/" + response.data.photo._id;
+          vm.webUrl = window.location.href + "photo/" + response.data.photo._id;
         })
         .catch(function(error) {
           vm.canUpload = true;
+          this.$refs.LittleAlert.showLittleAlert(
+            "上傳失敗",
+            this.$refs.myCanvas.getScroll()[1]
+          );
           console.log(error);
         });
     },
@@ -163,22 +194,20 @@ export default {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  background-color: #302e3f;
 }
 .Wrapper {
   display: flex;
-  padding: 30px 15px 10px 15px;
+  padding: 20px 15px 10px 15px;
   box-sizing: border-box;
-  justify-content: space-around;
   align-items: center;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  position: relative;
 
   .btngroup {
     display: flex;
-    margin-bottom: 40px;
+    padding-top: 20px;
+    box-sizing: border-box;
     .btn {
       box-shadow: 1px 8px 0px rgb(76, 42, 187);
       margin-right: 10px;
@@ -229,6 +258,9 @@ export default {
 }
 
 .uploadOptions {
+  width: 100%;
+  padding-top: 30px;
+  box-sizing: border-box;
   display: flex;
   color: rgb(154, 123, 255);
   flex-direction: column;
@@ -272,13 +304,13 @@ export default {
   }
 }
 
-.fade-enter-active,
-.fade-leave-active {
+.openDialog-enter-active,
+.openDialog-leave-active {
   transition: 0.5s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  transform: translateY(50px);
+.openDialog-enter, .openDialog-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+  transform: translateY(300px);
 }
 
 .bgCover {

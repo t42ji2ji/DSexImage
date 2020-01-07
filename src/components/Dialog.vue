@@ -1,9 +1,6 @@
 <template lang="pug">
   #Dialog
-    transition(name="fade")
-      .littleAlert(v-if="showTips") 
-        font-awesome-icon(icon="grin-hearts" color="white") 
-        span {{tipMessage}}
+    LittleAlert( ref="LittleAlert")
     .dialogWrapper
       .fun 
         .img
@@ -25,7 +22,12 @@
 </template>
 
 <script>
+import LittleAlert from "./LittleAlert";
+
 export default {
+  components: {
+    LittleAlert
+  },
   props: {
     message: String,
     webUrl: String,
@@ -33,10 +35,7 @@ export default {
     password: String
   },
   data() {
-    return {
-      showTips: false,
-      tipMessage: "網址已複製"
-    };
+    return {};
   },
   mounted() {},
   methods: {
@@ -51,16 +50,11 @@ export default {
       /* Select the text field */
       e.target.select();
       e.target.setSelectionRange(0, 99999); /*For mobile devices*/
-
       /* Copy the text inside the text field */
       document.execCommand("copy");
-
       /* Alert the copied text */
       if (e.target.value != "") {
-        var vm = this;
-        window.setTimeout(() => (vm.showTips = false), 2000);
-        this.showTips = true;
-        this.tipMessage = "已複製";
+        this.$refs.LittleAlert.showLittleAlert("網址已複製");
       }
     }
   }
@@ -72,7 +66,8 @@ export default {
   z-index: 999;
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  top: 0;
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -102,6 +97,7 @@ export default {
       img {
         max-width: 100%;
         max-height: 100%;
+        max-height: 250px;
         object-fit: contain;
       }
     }
@@ -141,14 +137,5 @@ hr {
   background-color: rgb(107, 62, 255);
   padding: 2px 12px;
   border-radius: 16px;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: 0.5s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  transform: translateY(-50px);
-  opacity: 0;
 }
 </style>

@@ -13,6 +13,7 @@
       .tip.rotate(@click="rotateCtx(90)", v-if="thumbnail")
         font-awesome-icon(icon="undo" color="white")
         span(style="margin-left: 10px") 旋轉
+
     .canvass()
       canvas#mycanvas(ref="myCanvas",:width="canvasWidth" :height="canvasHeight", @mousedown="handleMouseDown", @mousemove="handleMouseMove(false, $event)", @mouseup="handleMouseUp", @mouseout="handleMouseOut", @touchstart="handleMouseDown", @touchend="handleMouseUp", @touchmove="handleMouseMove(true, $event)",)
       canvas#tempCanvas(ref="tempCanvas",:width="canvasWidth" :height="canvasHeight")
@@ -37,7 +38,7 @@ export default {
   data() {
     return {
       canvasWidth: 320,
-      canvasHeight: 350,
+      canvasHeight: 450,
       isDown: false,
       tempCtx: null,
       ctx: null,
@@ -130,9 +131,15 @@ export default {
     },
     registListener() {
       var vm = this;
-      window.document.addEventListener("mouseup", function(e) {
-        vm.handleMouseUp(e);
-      });
+      window.document.addEventListener("mouseup", vm.handleMouseUp);
+      // window.addEventListener('resize', function() {
+      //   console.log('resize');
+      //   vm.canvasWidth = document.getElementById('blur').offsetWidth;
+      // });
+    },
+    removeListener() {
+      var vm = this;
+      window.document.removeEventListener("mouseup", vm.handleMouseUp, false);
       // window.addEventListener('resize', function() {
       //   console.log('resize');
       //   vm.canvasWidth = document.getElementById('blur').offsetWidth;
@@ -167,7 +174,14 @@ export default {
       this.drawAdjustImage(this.ctx, this.img);
     },
     drawAdjustImage(drawTarget, drawnTarget, rotate = false) {
+      // if (
+      //   (this.img.width > this.img.height && this.degrees % 360 == 90) ||
+      //   (this.img.width > this.img.height && this.degrees % 360 == 270)
+      // ) {
+      //   rotate = false;
+      // }
       if (!rotate) {
+        console.log("normal");
         drawTarget.drawImage(
           drawnTarget,
           this.adjust[0],
@@ -283,8 +297,9 @@ export default {
       }
       e.preventDefault();
       e.stopPropagation();
-      var mouseX = parseInt(clientX - this.offsetX);
-      var mouseY = parseInt(clientY - this.offsetY);
+      console.log(clientY, this.getScroll()[1], this.offsetY);
+      var mouseX = parseInt(clientX - this.getScroll()[0] - this.offsetX);
+      var mouseY = parseInt(clientY + this.getScroll()[1] - this.offsetY);
       this.ctx.fillStyle = "rgba(107, 62, 255, 0.3)"; //red
 
       this.ctx.beginPath();
@@ -299,6 +314,24 @@ export default {
       this.tempCanvasOrignCtx.arc(mouseX, mouseY, 20, 0, this.PI2);
       this.tempCanvasOrignCtx.closePath();
       this.tempCanvasOrignCtx.fill();
+    },
+    getScroll() {
+      var bodyTop;
+      var bodyLeft;
+      if (typeof window.pageYOffset != "undefined") {
+        bodyTop = window.pageYOffset;
+        bodyLeft = window.pageXOffset;
+      } else if (
+        typeof document.compatMode != "undefined" &&
+        document.compatMode != "BackCompat"
+      ) {
+        bodyTop = document.documentElement.scrollTop;
+        bodyLeft = document.documentElement.scrollLeft;
+      } else if (typeof document.body != "undefined") {
+        bodyTop = document.body.scrollTop;
+        bodyLeft = document.body.scrollLeft;
+      }
+      return [bodyLeft, bodyTop];
     },
     cleanCtx() {
       this.adjust = [];
@@ -318,6 +351,10 @@ export default {
       );
       this.init();
     }
+  },
+  destroyed() {
+    this.removeListener();
+    console.log("des");
   },
   watch: {
     // eslint-disable-next-line no-unused-vars
