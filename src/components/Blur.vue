@@ -123,7 +123,6 @@ export default {
     },
     changeBlurMode(mode) {
       if (this.isblurMode == mode) {
-        console.log("same");
         return;
       } else {
         this.cleanCtx();
@@ -146,7 +145,7 @@ export default {
       //   vm.canvasWidth = document.getElementById('blur').offsetWidth;
       // });
     },
-    cropCanvas(canvas, config){
+    cropCanvas(canvas, config) {
       var ctx = canvas.getContext("2d");
       const data = ctx.getImageData(
         config.offset.x,
@@ -193,7 +192,7 @@ export default {
           y: y
         }
       };
-// this.ctx.drawImage(this.img, 0, 0);
+      // this.ctx.drawImage(this.img, 0, 0);
       this.drawAdjustImage(this.ctx, this.img);
     },
     drawAdjustImage(drawTarget, drawnTarget, rotate = false) {
@@ -320,7 +319,7 @@ export default {
       }
       e.preventDefault();
       e.stopPropagation();
-      console.log(clientY, this.getScroll()[1], this.offsetY);
+      // console.log(clientY, this.getScroll()[1], this.offsetY);
       var mouseX = parseInt(clientX - this.getScroll()[0] - this.offsetX);
       var mouseY = parseInt(clientY + this.getScroll()[1] - this.offsetY);
       this.ctx.fillStyle = "rgba(107, 62, 255, 0.3)"; //red
@@ -377,7 +376,6 @@ export default {
   },
   destroyed() {
     this.removeListener();
-    console.log("des");
   },
   watch: {
     // eslint-disable-next-line no-unused-vars

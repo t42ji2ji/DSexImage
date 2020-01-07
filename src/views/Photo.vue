@@ -34,15 +34,12 @@ export default {
       if (this.pass) {
         return this.imageData;
       } else {
-        console.log(this.baseUrl + this.$route.params.id);
         return this.baseUrl + this.$route.params.id;
       }
     }
   },
   methods: {
-    test() {
-      console.log("hi");
-    },
+    test() {},
     postImage() {
       if (!this.postControl) {
         return;
@@ -55,14 +52,12 @@ export default {
           password: vm.password
         })
         .then(function(response) {
-          console.log(response.data);
           vm.postControl = true;
 
           if (!response.data.status) {
             vm.$refs.LittleAlert.showLittleAlert("密碼錯誤");
           }
           vm.pass = response.data.status;
-          console.log(vm.pass);
           vm.imageData = response.data.data;
         })
         .catch(function(error) {

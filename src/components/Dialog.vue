@@ -1,6 +1,6 @@
 <template lang="pug">
   #Dialog
-    LittleAlert( ref="LittleAlert")
+    LittleAlert(ref="LittleAlert")
     .dialogWrapper
       .fun 
         .img
@@ -9,11 +9,11 @@
           .timeOptions
             .timeOptionTitle 分享
             .inputForm
-              input(type="text" :value="webUrl" @click="select" readonly) 
+              input(type="text" :value="webUrl" @click="select($event, '網址')" readonly) 
           .timeOptions
             .timeOptionTitle 密碼
             .inputForm
-              input(type="text" :value="password" @click="select"  readonly) 
+              input(type="text" :value="password" @click="select($event, '密碼')"  readonly) 
       .close(@click="closeDialog")
         hr
         span   關閉
@@ -40,12 +40,10 @@ export default {
   mounted() {},
   methods: {
     closeDialog(e) {
-      console.log(e);
       e.stopPropagation();
-      console.log("cloese");
       this.$emit("closeDialog");
     },
-    select(e) {
+    select(e, message) {
       e.target.select();
       /* Select the text field */
       e.target.select();
@@ -54,7 +52,10 @@ export default {
       document.execCommand("copy");
       /* Alert the copied text */
       if (e.target.value != "") {
-        this.$refs.LittleAlert.showLittleAlert("網址已複製");
+        this.$refs.LittleAlert.showLittleAlert(
+          message + "已複製",
+          document.documentElement.scrollTop
+        );
       }
     }
   }

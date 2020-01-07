@@ -56,7 +56,6 @@ export default {
   mounted() {},
   computed: {},
   beforeRouteLeave(to, from, next) {
-    console.log(to, from, next);
     var returnFunc;
     window.document.removeEventListener("mouseup", returnFunc);
     next();
@@ -92,10 +91,8 @@ export default {
         return;
       }
       if (!this.validateForm()) {
-        console.log(this.validateForm());
         return;
       }
-      console.log("upup");
       this.canUpload = false;
       var vm = this;
       var baseUrl = "https://imagewall.ahkui.com/api/v1/photo";
@@ -106,10 +103,10 @@ export default {
           photo: vm.$refs.myCanvas.returnCanvas()
         })
         .then(function(response) {
-          console.log(response);
           vm.canUpload = true;
           vm.isDialogOpen = true;
-          vm.webUrl = window.location.href + "photo/" + response.data.photo._id;
+          var url = window.location.href;
+          vm.webUrl = url.slice(0, -4) + "photo/" + response.data.photo._id;
         })
         .catch(function(error) {
           vm.canUpload = true;
@@ -209,15 +206,23 @@ export default {
     padding-top: 20px;
     box-sizing: border-box;
     .btn {
-      box-shadow: 1px 8px 0px rgb(76, 42, 187);
       margin-right: 10px;
-      color: white;
-      font-size: 1.3rem;
-      padding: 4px 25px;
-      border-radius: 2px;
-      background-color: rgb(107, 62, 255);
-      cursor: pointer;
     }
+  }
+}
+
+.btn {
+  box-shadow: 1px 8px 0px rgb(76, 42, 187);
+  color: white;
+  font-size: 1.3rem;
+  padding: 4px 25px;
+  border-radius: 2px;
+  background-color: rgb(107, 62, 255);
+  transition: 0.3s;
+  cursor: pointer;
+  &:hover {
+    transform: translateY(3px);
+    box-shadow: 1px 5px 0px rgb(76, 42, 187);
   }
 }
 

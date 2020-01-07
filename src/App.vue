@@ -22,7 +22,7 @@ export default {
   },
   methods: {
     toHome() {
-      if (this.$route.name != "home") this.$router.push("/");
+      if (this.$route.name != "land") this.$router.push("/");
     }
   }
 };
@@ -33,7 +33,7 @@ export default {
 @import url("https://fonts.googleapis.com/css?family=Baloo+Bhai&display=swap");
 
 #app {
-  font-family: "Noto Sans TC", sans-serif;
+  font-family: "Baloo Bhai", "Noto Sans TC", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

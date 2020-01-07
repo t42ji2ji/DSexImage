@@ -34,6 +34,7 @@ export default {
   position: absolute;
   top: 12px;
   width: 100%;
+  z-index: 1000;
 }
 .littleAlert {
   color: white;

@@ -5,9 +5,14 @@ import Home from '../views/Home.vue'
 Vue.use(VueRouter)
 
 const routes = [{
-    path: '/',
-    name: 'home',
+    path: '/edit',
+    name: 'edit',
     component: Home,
+  },
+  {
+    path: '/',
+    name: 'land',
+    component: () => import( /* webpackChunkName: "about" */ '../views/LandingPage.vue'),
   },
   {
     path: '/photo/:id',
