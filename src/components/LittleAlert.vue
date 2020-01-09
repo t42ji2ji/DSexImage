@@ -1,6 +1,6 @@
 <template lang="pug">
   transition(name="fade")
-    .LittleAlertCover(v-if="showTips", :style="{top: `${this.top + 12}px`}")
+    .LittleAlertCover(v-if="showTips", :style="{top: `${this.top + 75}px`}")
       .littleAlert(v-if="showTips")
         font-awesome-icon(icon="grin-hearts" color="white") 
         span   {{tipMessage}}

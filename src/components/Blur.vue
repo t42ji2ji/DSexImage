@@ -1,8 +1,13 @@
 <template lang="pug">
   #blur
-    .mode(v-if="thumbnail")
-      .tip(:class="{unUploadIcon:!isblurMode}" @click="changeBlurMode(true)") 模糊背景
-      .tip(:class="{unUploadIcon:isblurMode}" @click="changeBlurMode(false)") 刮刮樂
+
+
+
+    .canvass()
+      canvas#mycanvas(ref="myCanvas",:width="canvasWidth" :height="canvasHeight", @mousedown="handleMouseDown", @mousemove="handleMouseMove(false, $event)", @mouseup="handleMouseUp", @mouseout="handleMouseOut", @touchstart="handleMouseDown", @touchend="handleMouseUp", @touchmove="handleMouseMove(true, $event)",)
+      canvas#tempCanvas(ref="tempCanvas",:width="canvasWidth" :height="canvasHeight")
+      canvas#tempCanvas2(ref="tempCanvasOrign",:width="canvasWidth" :height="canvasHeight")
+      .cover(v-if="!isRotateable", :style="{width: `${canvasWidth}px`,height:`${canvasHeight}px`}") {{message}}
     .tips
       //- .tip()
       //-   font-awesome-icon(icon="hand-point-up" color="white")
@@ -13,12 +18,9 @@
       .tip.rotate(@click="rotateCtx(90)", v-if="thumbnail")
         font-awesome-icon(icon="undo" color="white")
         span(style="margin-left: 10px") 旋轉
-
-    .canvass()
-      canvas#mycanvas(ref="myCanvas",:width="canvasWidth" :height="canvasHeight", @mousedown="handleMouseDown", @mousemove="handleMouseMove(false, $event)", @mouseup="handleMouseUp", @mouseout="handleMouseOut", @touchstart="handleMouseDown", @touchend="handleMouseUp", @touchmove="handleMouseMove(true, $event)",)
-      canvas#tempCanvas(ref="tempCanvas",:width="canvasWidth" :height="canvasHeight")
-      canvas#tempCanvas2(ref="tempCanvasOrign",:width="canvasWidth" :height="canvasHeight")
-      .cover(v-if="!isRotateable", :style="{width: `${canvasWidth}px`,height:`${canvasHeight}px`}") {{message}}
+    .mode(v-if="thumbnail")
+      .tip(:class="{unUploadIcon:!isblurMode}" @click="changeBlurMode(true)") 模糊背景
+      .tip(:class="{unUploadIcon:isblurMode}" @click="changeBlurMode(false)") 刮刮樂
 
 
 </template>
@@ -38,7 +40,7 @@ export default {
   data() {
     return {
       canvasWidth: 320,
-      canvasHeight: 380,
+      canvasHeight: 320,
       isDown: false,
       tempCtx: null,
       ctx: null,
@@ -79,6 +81,7 @@ export default {
       if (!this.isRotateable) {
         return;
       }
+
       this.tempCanvasOrignCtx.clearRect(
         0,
         0,
@@ -119,13 +122,14 @@ export default {
       // this.ctx.restore();
       this.message = "";
       this.isRotateable = true;
-      this.handleMouseUp();
+      // this._clearTempCtx();
+      var x = "";
+      this.handleMouseUp(x, true);
     },
     changeBlurMode(mode) {
       if (this.isblurMode == mode) {
         return;
       } else {
-        this.cleanCtx();
         this.isblurMode = !this.isblurMode;
       }
     },
@@ -251,7 +255,8 @@ export default {
       e.stopPropagation();
       this.isDown = true;
     },
-    handleMouseUp(e) {
+    handleMouseUp(e, fromRotate = false) {
+      console.log("from", fromRotate);
       if (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -296,7 +301,7 @@ export default {
       );
       this.ctx.globalCompositeOperation = "destination-over";
       // this.ctx.drawImage(this.img, 0, 0);
-      if (this.isblurMode) {
+      if (this.isblurMode || fromRotate) {
         this.drawAdjustImage(this.ctx, this.img, true);
       }
       this.ctx.restore();
@@ -415,7 +420,7 @@ canvas {
 .mode {
   display: flex;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-top: 12px;
   border-radius: 15px;
   overflow: hidden;
   .tip {
